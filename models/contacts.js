@@ -1,14 +1,34 @@
-const fs = require("fs/promises");
-const { nanoid } = require("nanoid");
-const path = require("path");
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const contactsPath = path.resolve(__dirname, "./contacts.json");
+const contact = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Set name for contact"],
+    },
+    email: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  }
+);
+
+const Contact = mongoose.model("contact", contact, "contacts");
 
 const listContacts = async () => {
   try {
-    const data = await fs.readFile(contactsPath);
-    const contacts = JSON.parse(data);
-    return contacts;
+    return Contact.find();
   } catch (error) {
     console.log("Error reading file:", error);
     return [];
@@ -17,9 +37,7 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const contacts = await listContacts();
-    const contact = contacts.find(({ id }) => id === contactId);
-    return contact;
+    return Contact.findById(contactId);
   } catch (error) {
     console.log(`Could not find a contact with id ${contactId}`);
   }
@@ -27,15 +45,7 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const contacts = await listContacts();
-    const findContact = contacts.find(({ id }) => id === contactId);
-    if (!findContact) {
-      return null;
-    } else {
-      const contactIndex = contacts.filter(({ id }) => id !== contactId);
-      await fs.writeFile(contactsPath, JSON.stringify(contactIndex));
-      return contactIndex;
-    }
+    return Contact.findByIdAndDelete(contactId);
   } catch (error) {
     console.log(`Could not delete the contact with ID:${contactId}`, error);
   }
@@ -43,11 +53,7 @@ const removeContact = async (contactId) => {
 
 const addContact = async (body) => {
   try {
-    const contacts = await listContacts();
-    const newContact = { ...body, id: nanoid() };
-    contacts.push(newContact);
-    await fs.writeFile(contactsPath, JSON.stringify(contacts));
-    return newContact;
+    Contact.create(body);
   } catch (error) {
     console.log("Error adding contact:", error);
   }
@@ -55,24 +61,17 @@ const addContact = async (body) => {
 
 const updateContact = async (contactId, body) => {
   try {
-    const contacts = await listContacts();
-    const updatedContacts = contacts.map((contact) => {
-      if (contact.id === contactId) {
-        return { ...contact, ...body };
-      }
-      return contact;
-    });
-
-    const updatedContact = updatedContacts.find(({ id }) => id === contactId);
-
-    if (!updatedContact) {
-      return null;
-    }
-
-    await fs.writeFile(contactsPath, JSON.stringify(updatedContacts));
-    return updatedContact;
+    return Contact.findByIdAndUpdate(contactId, body, { new: true });
   } catch (error) {
     console.log(`Error updating the contact with ID:${contactId}`, error);
+  }
+};
+
+const updateFavorite = async (contactId, favorite) => {
+  try {
+    return Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
+  } catch (error) {
+    console.log("missing field favorite");
   }
 };
 
@@ -82,4 +81,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  updateFavorite,
 };

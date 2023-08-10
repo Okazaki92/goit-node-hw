@@ -5,6 +5,7 @@ const {
   addContact,
   removeContact,
   updateContact,
+  updateFavorite,
 } = require("../../models/contacts");
 const Joi = require("joi");
 
@@ -90,9 +91,6 @@ router.put("/:contactId", async (req, res, next) => {
   try {
     const contactBody = contactSchema.validate(req.body);
     const { name, email, phone } = contactBody.value;
-    if (!name || !email || !phone) {
-      res.json({ status: 400, message: "missing required name - field" });
-    }
     const body = { name, email, phone };
     const { contactId } = req.params;
     const updateOldContact = await updateContact(contactId, body);
@@ -100,6 +98,17 @@ router.put("/:contactId", async (req, res, next) => {
       res.json({ status: 404, message: "contact not found" });
     }
     res.json({ status: 200, data: { updateOldContact } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/:contactId/favorite", async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+    const { favorite } = req.body;
+    const setFavorite = await updateFavorite(contactId, favorite);
+    res.json({ status: 200, data: { setFavorite } });
   } catch (error) {
     next(error);
   }
