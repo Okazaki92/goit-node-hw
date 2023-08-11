@@ -27,52 +27,27 @@ const contact = new Schema(
 const Contact = mongoose.model("contact", contact, "contacts");
 
 const listContacts = async () => {
-  try {
-    return Contact.find();
-  } catch (error) {
-    console.log("Error reading file:", error);
-    return [];
-  }
+  return Contact.find();
 };
 
 const getContactById = async (contactId) => {
-  try {
-    return Contact.findById(contactId);
-  } catch (error) {
-    console.log(`Could not find a contact with id ${contactId}`);
-  }
+  return Contact.findById(contactId);
 };
 
 const removeContact = async (contactId) => {
-  try {
-    return Contact.findByIdAndDelete(contactId);
-  } catch (error) {
-    console.log(`Could not delete the contact with ID:${contactId}`, error);
-  }
+  return Contact.findByIdAndDelete(contactId);
 };
 
 const addContact = async (body) => {
-  try {
-    Contact.create(body);
-  } catch (error) {
-    console.log("Error adding contact:", error);
-  }
+  return Contact.create(body);
 };
 
 const updateContact = async (contactId, body) => {
-  try {
-    return Contact.findByIdAndUpdate(contactId, body, { new: true });
-  } catch (error) {
-    console.log(`Error updating the contact with ID:${contactId}`, error);
-  }
+  return Contact.findByIdAndUpdate(contactId, body, { new: true });
 };
 
 const updateFavorite = async (contactId, favorite) => {
-  try {
-    return Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
-  } catch (error) {
-    console.log("missing field favorite");
-  }
+  return Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
 };
 
 module.exports = {
