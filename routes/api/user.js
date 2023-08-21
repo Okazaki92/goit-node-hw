@@ -62,11 +62,12 @@ router.post("/login", async (req, res, next) => {
   }
   try {
     const payload = {
-      _id: user.id,
+      id: user.id,
       email: user.email,
     };
 
     const token = jwt.sign(payload, secret, { expiresIn: "1h" });
+    await User.findByIdAndUpdate(user._id, { token });
     res.status(200).json({
       token,
       user: {
@@ -81,19 +82,32 @@ router.post("/login", async (req, res, next) => {
 
 router.get("/logout", auth, (req, res, next) => {
   const { _id } = req.user;
-  User.findByIdAndUpdate(_id, { token: null });
+  User.findByIdAndUpdate(_id, { token: "" });
+  res.status(204).json({});
 });
 
 router.get("/current", auth, (req, res, next) => {
-  const { email } = req.user;
-  console.log(req.user);
-
-  const user = User.find(email);
+  const { email, subscription } = req.user;
 
   res.status(200).json({
     email,
-    subscription: user.subscription,
+    subscription,
   });
+});
+
+router.patch("/:id", async (req, res, next) => {
+  const { id } = req.params;
+  const { subscription } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      id,
+      { subscription },
+      { new: true }
+    );
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;

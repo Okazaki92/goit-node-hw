@@ -26,8 +26,8 @@ const contact = new Schema(
 
 const Contact = mongoose.model("contact", contact, "contacts");
 
-const listContacts = async () => {
-  return Contact.find();
+const listContacts = async (query) => {
+  return Contact.find(query);
 };
 
 const getContactById = async (contactId) => {
