@@ -18,7 +18,7 @@ const userSchema = Joi.object({
 router.post("/signup", async (req, res, next) => {
   const validators = userSchema.validate(req.body);
   if (validators.error?.message) {
-    res.status(400).json({ message: validators.error.message });
+    return res.status(400).json({ message: validators.error.message });
   }
   const { email, password, subscription } = req.body;
   const user = await User.findOne({ email });
@@ -49,7 +49,7 @@ router.post("/signup", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   const validators = userSchema.validate(req.body);
   if (validators.error?.message) {
-    res.status(400).json({ message: validators.error.message });
+    return res.status(400).json({ message: validators.error.message });
   }
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -80,9 +80,11 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.get("/logout", auth, (req, res, next) => {
+router.get("/logout", auth, async (req, res, next) => {
   const { _id } = req.user;
-  User.findByIdAndUpdate(_id, { token: "" });
+  console.log(req.user);
+  await User.findByIdAndUpdate(_id, { token: null });
+  console.log(req.user);
   res.status(204).json({});
 });
 

@@ -21,9 +21,11 @@ const contactSchema = Joi.object({
 router.get("/", async (req, res, next) => {
   try {
     const { query } = req;
-    const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 5;
-    const contacts = await listContacts(query, page, limit);
+    const pageOptions = {
+      page: parseInt(req.query.page, 10) || 0,
+      limit: parseInt(req.query.limit, 10) || 5,
+    };
+    const contacts = await listContacts(pageOptions, query);
     res.json({
       status: 200,
       data: {
