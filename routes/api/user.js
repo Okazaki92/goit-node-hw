@@ -82,9 +82,7 @@ router.post("/login", async (req, res, next) => {
 
 router.get("/logout", auth, async (req, res, next) => {
   const { _id } = req.user;
-  console.log(req.user);
   await User.findByIdAndUpdate(_id, { token: null });
-  console.log(req.user);
   res.status(204).json({});
 });
 
