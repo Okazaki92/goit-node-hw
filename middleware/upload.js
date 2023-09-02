@@ -2,7 +2,6 @@ const multer = require("multer");
 const path = require("path");
 
 const updatePath = path.join(process.cwd(), "tmp");
-const test = path.join(process.cwd(), "public", "avatars");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -16,7 +15,6 @@ const storage = multer.diskStorage({
   },
 });
 
-console.log(test);
 const upload = multer({
   storage: storage,
 });

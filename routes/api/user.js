@@ -105,21 +105,6 @@ router.get("/current", auth, (req, res, next) => {
   });
 });
 
-router.patch("/:id", auth, async (req, res, next) => {
-  const { id } = req.params;
-  const { subscription } = req.body;
-  try {
-    const user = await User.findByIdAndUpdate(
-      id,
-      { subscription },
-      { new: true }
-    );
-    res.json(user);
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.patch(
   "/avatars",
   auth,
@@ -135,7 +120,7 @@ router.patch(
       const avatarURL = path.join("public", "avatars", avatarName);
       jimp.read(avatarURL, (error, imageName) => {
         if (error) throw error;
-        imageName.resize(250, 250).write(avatarURL);
+        imageName.cover(250, 250).write(avatarURL);
       });
       await User.findByIdAndUpdate(id, { avatarURL }, { new: true });
       res.status(200).json({
@@ -146,5 +131,21 @@ router.patch(
     }
   }
 );
+
+router.patch("/:id", auth, async (req, res, next) => {
+  const { id } = req.params;
+  const { subscription } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(
+      id,
+      { subscription },
+      { new: true }
+      );
+      res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 module.exports = router;
